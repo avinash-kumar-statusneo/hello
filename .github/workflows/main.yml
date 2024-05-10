@@ -1,11 +1,9 @@
 name: react-native-android-build-apk
-
-on:
+'on':
   push:
     branches:
       - main
-  workflow_dispatch:
-
+  workflow_dispatch: null
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -18,17 +16,19 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: app-develop-release-${{ format('yyyyMMdd_HHmmss', github.run_number) }}.apk
+          name: >-
+            app-develop-release-${{ format('yyyyMMdd_HHmmss', github.run_number)
+            }}.apk
           path: android/app/build/outputs/apk/develop/release/
       - name: Create Release
-            id: create_release
-            uses: actions/create-release@v1
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            with:
-              tag_name: ${{ github.run_number }}
-              release_name: Release ${{ github.run_number }}
-              body: |
-                Release ${{ github.run_number }}
-              draft: false
-              prerelease: false
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          tag_name: '${{ github.run_number }}'
+          release_name: 'Release ${{ github.run_number }}'
+        body: |
+          Release ${{ github.run_number }}
+            draft: false
+            prerelease: false
