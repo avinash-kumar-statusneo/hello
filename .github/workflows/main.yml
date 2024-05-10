@@ -39,7 +39,7 @@ jobs:
               base: latestRelease.tag_name,
               head: currentTag
             });
-            let releaseNotes = '';
+            let releaseNotes = 'd';
             for (const commit of commits.data.commits) {
               releaseNotes += `- ${commit.commit.message}\n`;
             }
