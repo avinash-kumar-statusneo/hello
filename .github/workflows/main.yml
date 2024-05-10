@@ -28,7 +28,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
-            const { github } = require('@actions/github');
             const currentTag = context.payload.ref.replace('refs/tags/', '');
             const { data: latestRelease } = await github.rest.repos.getLatestRelease({
               owner: context.repo.owner,
