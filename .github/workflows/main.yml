@@ -21,16 +21,40 @@ jobs:
             app-develop-release-${{ format('yyyyMMdd_HHmmss', github.run_number)
             }}.apk
           path: android/app/build/outputs/apk/develop/release/
+      - name: Generate Release Notes
+        id: release_notes
+        uses: actions/github-script@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const { context, github } = require('@actions/github');
+            const currentTag = context.payload.ref.replace('refs/tags/', '');
+            const { data: latestRelease } = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const commits = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: latestRelease.tag_name,
+              head: currentTag
+            });
+            let releaseNotes = '';
+            for (const commit of commits.data.commits) {
+              releaseNotes += `- ${commit.commit.message}\n`;
+            }
+            console.log(releaseNotes.trim());
+            return releaseNotes.trim();
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: '${{ github.run_number }}'
-          release_name: 'Release ${{ github.run_number }}'
-          body: |
-            Release ${{ github.run_number }}
-            draft: false
-            prerelease: false
-        
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          body: ${{ steps.release_notes.outputs.release_notes }}
+          draft: false
+          prerelease: false
+      
