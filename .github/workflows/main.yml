@@ -11,16 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Add IST timestamp and datee to APK name
+        id: timestamp
         run: |
           TIMESTAMP=$(TZ="Asia/Kolkata" date +'%Y-%m-%d_%H-%M-%S')
-          echo $TIMESTAMP
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: >-
-            app-develop-release-${{ format('yyyyMMdd_HHmmss', github.run_number)
-            }}.apk
-          path: android/app/build/outputs/apk/develop/release/
+          echo "::set-output name=timestamp::$TIMESTAMP"
+      - name: Logging var
+        run: |
+          echo `app-development-release-${{ steps.timestamp.outputs.timestamp }}.apk`
       - name: Generate Release Notes
         id: release_notes
         uses: actions/github-script@v5
